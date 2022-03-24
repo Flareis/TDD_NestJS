@@ -47,7 +47,7 @@ $ npm run start:prod
 
 ## Test
 
-```bash
+```bashnp
 # unit tests
 $ npm run test
 
