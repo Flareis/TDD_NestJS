@@ -12,6 +12,7 @@ describe('CurrenciesService', () => {
       getCurrency: jest.fn(),
       createCurrency: jest.fn(),
       updateCurrency: jest.fn(),
+      deleteCurrency: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,18 +44,18 @@ describe('CurrenciesService', () => {
       );
     });
 
-    it('should be throw if repository returns', async () => {
-      await expect(service.getCurrency('USD')).resolves.not.toThrow();
+    it('should be not throw if repository returns', async () => {
+      await expect(service.getCurrency(mockData)).resolves.not.toThrow();
     });
 
     it('should be called repository with correct params', async () => {
-      await service.getCurrency('USD');
-      expect(repository.getCurrency).toBeCalledWith('USD');
+      await service.getCurrency(mockData);
+      expect(repository.getCurrency).toBeCalledWith(mockData);
     });
 
     it('should be return when repository return', async () => {
       (repository.getCurrency as jest.Mock).mockReturnValue(mockData);
-      expect(await service.getCurrency('USD')).toEqual(mockData);
+      expect(await service.getCurrency(mockData)).toEqual(mockData);
     });
   });
 
@@ -70,6 +71,10 @@ describe('CurrenciesService', () => {
     });
 
     it('should be throw if repository returns', async () => {
+      await expect(service.createCurrency(mockData)).resolves.not.toThrow();
+    });
+
+    it('should be not throw if repository returns', async () => {
       await expect(service.createCurrency(mockData)).resolves.not.toThrow();
     });
 
@@ -96,11 +101,42 @@ describe('CurrenciesService', () => {
       await expect(service.updateCurrency(mockData)).resolves.not.toThrow();
     });
 
+    it('should be return when repository return', async () => {
+      (repository.updateCurrency as jest.Mock).mockReturnValue(mockData);
+      expect(await service.updateCurrency(mockData)).toEqual(mockData);
+    });
+
     it('should be throw if value <= 0', async () => {
       mockData.currency = 0;
-      expect(service.createCurrency(mockData)).rejects.toThrow(
+      expect(service.updateCurrency(mockData)).rejects.toThrow(
         new BadRequestException('The value  must be great zero.'),
       );
+    });
+  });
+
+  describe('deleteCurrency()', () => {
+    it('should be throw if repository throw', async () => {
+      (repository.deleteCurrency as jest.Mock).mockRejectedValue(
+        new InternalServerErrorException(),
+      );
+      mockData.currency = 'INVALID';
+      await expect(service.deleteCurrency('USD')).rejects.toThrow(
+        new InternalServerErrorException(),
+      );
+    });
+
+    it('should be not throw if repository returns', async () => {
+      await expect(service.deleteCurrency('USD')).resolves.not.toThrow();
+    });
+
+    it('should be return when repository return', async () => {
+      (repository.deleteCurrency as jest.Mock).mockReturnValue(mockData);
+      expect(await service.deleteCurrency(mockData)).toEqual(mockData);
+    });
+
+    it('should be called repository with correct params', async () => {
+      await service.deleteCurrency('USD');
+      expect(repository.deleteCurrency).toBeCalledWith('USD');
     });
   });
 });
